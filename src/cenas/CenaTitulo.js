@@ -13,6 +13,7 @@ const CONTROLES = [
   ['W / ESPAÇO / ↑', 'pular (segure para ir mais alto)'],
   ['S  ou  ↓', 'descer das prateleiras'],
   ['F', 'ligar / desligar a lanterna'],
+  ['Q', 'alternar luz branca / ultravioleta'],
   ['E  ou  ENTER', 'interagir e avançar diálogos'],
   ['ESC  ou  P', 'pausar'],
   ['M', 'ligar / desligar o som']

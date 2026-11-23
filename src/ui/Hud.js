@@ -52,11 +52,13 @@ export class Hud {
     b.rect(62, 6, 42, 9).fill(0x0a0810).stroke({ color: 0x6a6280, width: 1 })
     b.rect(104, 8, 2, 5).fill(0x6a6280)
     const nivel = iris.bateria / 100
-    const cor = nivel > 0.5 ? 0x5aff8c : nivel > 0.2 ? 0xffd060 : 0xff3c50
+    const cor = iris.modoUV ? 0xb070ff : nivel > 0.5 ? 0x5aff8c : nivel > 0.2 ? 0xffd060 : 0xff3c50
     const piscaFraca = nivel <= 0.2 && Math.floor(this.tempo * 4) % 2 === 0
     if (nivel > 0 && !piscaFraca) b.rect(64, 8, Math.max(1, Math.round(38 * nivel)), 5).fill(cor)
     if (!iris.lanternaLigada) b.rect(62, 6, 42, 9).fill({ color: 0x000000, alpha: 0.55 })
     this.chave.visible = !!estado.temChave
+    this.rotuloLanterna.text = iris.modoUV ? 'UV' : 'F'
+    this.rotuloLanterna.x = iris.modoUV ? 46 : 52
     if (this.tempoAviso > 0) {
       this.tempoAviso -= dt
       this.aviso.alpha = Math.min(1, this.tempoAviso * 2)

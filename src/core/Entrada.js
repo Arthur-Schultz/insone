@@ -6,6 +6,7 @@ const MAPA = {
   pulo: ['Space', 'ArrowUp', 'KeyW'],
   interagir: ['KeyE', 'Enter'],
   lanterna: ['KeyF', 'KeyX'],
+  uv: ['KeyQ'],
   pausa: ['Escape', 'KeyP'],
   confirmar: ['Enter', 'Space', 'KeyE'],
   voltar: ['Escape', 'Backspace'],

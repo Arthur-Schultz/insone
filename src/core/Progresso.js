@@ -1,7 +1,7 @@
 const CHAVE = 'insone-progresso'
 
 export function novaPartida() {
-  return { tempo: 0, mortes: 0, bilhetes: 0, sombras: 0, temChave: false }
+  return { tempo: 0, mortes: 0, bilhetes: 0, sombras: 0, temChave: false, temUV: false }
 }
 
 export function lerProgresso() {

@@ -38,14 +38,16 @@ Mais uma noite em que **Iris** não consegue dormir. Quando abre os olhos, ela n
 
 Os corredores estão tomados por **Sombras**, criaturas de olhos vermelhos que só se movem no escuro, e por **Vultos** que voam pelo teto e mergulham em quem estiver desprotegido. Nas janelas, alguém observa. Para se defender, Iris tem só uma **lanterna de pilha fraca**. Os bilhetes que a avó deixou espalhados pela casa explicam aos poucos o que está acontecendo, e Iris começa a entender que a insônia dela talvez não seja só falta de sono.
 
-Para escapar, ela precisa atravessar três andares da casa até chegar ao antigo quarto e finalmente deitar na própria cama.
+Para escapar, ela precisa atravessar cinco cômodos da casa, encontrar a lanterna de luz ultravioleta do avô, derrotar A Coisa e chegar ao antigo quarto para finalmente deitar na própria cama.
 
 ## Objetivos
 
-- **Fase 1, O Térreo:** descobrir onde está a chave do corredor e abrir a porta trancada.
-- **Fase 2, O Porão:** decifrar a combinação certa de três alavancas e dar um jeito de manter aberto o portão do fundo.
-- **Fase 3, O Andar de Cima:** encontrar a senha do cadeado, que está espalhada pela casa, e fugir d'**A Coisa** até o quarto.
-- **Sempre:** manter a lanterna com pilha, não perder toda a **sanidade** (os 3 corações) e ler os 9 bilhetes para conhecer a história completa.
+- **Fase 1, O Térreo:** descobrir onde está a chave do corredor, dar um jeito de alcançá-la e abrir a porta trancada.
+- **Fase 2, A Biblioteca:** encontrar a lanterna UV, atravessar um abismo de espinhos por plataformas invisíveis e descobrir, com a tinta invisível do avô, quais alavancas abrem a passagem.
+- **Fase 3, O Porão:** decifrar a combinação de três alavancas, prender uma caixa na placa de pressão e cruzar os pilares antes que o portão com tempo se feche.
+- **Fase 4, A Sala de Música:** girar espelhos para guiar um feixe de luz até um cristal e repetir nas pedras musicais a canção da caixinha de música.
+- **Fase 5, O Andar de Cima:** achar a senha do cadeado (escrita com tinta invisível), fugir d'**A Coisa** pelo corredor e enfrentá-la na batalha final.
+- **Sempre:** administrar a pilha da lanterna, não perder toda a **sanidade** (os 3 corações) e ler os 15 bilhetes para conhecer a história completa.
 
 No fim, o jogo mostra o tempo total, quantas vezes a Iris caiu, quantos bilhetes foram lidos e quantas sombras foram dissolvidas. O melhor tempo fica salvo.
 
@@ -57,37 +59,53 @@ No fim, o jogo mostra o tempo total, quantas vezes a Iris caiu, quantos bilhetes
 | `W`, `ESPAÇO` ou `↑` | Pular (segure para ir mais alto) |
 | `S` ou `↓` | Descer das prateleiras |
 | `F` | Ligar / desligar a lanterna |
+| `Q` | Alternar entre luz branca e ultravioleta (depois de encontrar a lanterna UV) |
 | `E` ou `ENTER` | Interagir, ler bilhetes, avançar diálogos |
 | `ESC` ou `P` | Pausar |
 | `M` | Ligar / desligar o som |
 
 ## Mecânicas e puzzles
 
-O jogo não explica as soluções: os bilhetes dão pistas, e o resto o jogador precisa descobrir.
+O jogo não explica as soluções: os bilhetes e as escritas invisíveis dão pistas, e o resto o jogador precisa descobrir.
 
-- **Lanterna e luz:** a lanterna ilumina em cone na direção em que a Iris olha e gasta pilha rápido (uma carga cheia dura menos de 30 segundos). Quando a carga fica fraca, ela começa a piscar. As pilhas são poucas, então às vezes vale a pena andar no escuro.
-- **Sombras:** só se movem no escuro e perseguem a Iris quando ela chega perto. A luz as congela, e se ficar em cima delas por tempo suficiente, elas se dissolvem.
-- **Vultos (inimigo voador):** pairam perto do teto e mergulham na direção da Iris. Não morrem com a luz, mas fogem quando são iluminados, então é preciso virar e mirar a lanterna na hora certa.
-- **Olhos na janela:** às vezes uma silhueta de olhos vermelhos aparece nas janelas, com um sussurro, e some quando a Iris se aproxima.
-- **Sanidade:** 3 corações. Encostar em sombras ou vultos, cair em espinhos ou ser alcançada por A Coisa tira 1 coração. Se acabarem, a Iris volta para a última vela acesa.
-- **Velas (checkpoints):** só existe **uma vela por fase**. Até encontrá-la, cada erro manda a Iris de volta para o começo.
-- **Chave e porta trancada** (fase 1): a etiqueta na gaveta só diz que a chave fica "onde as crianças não alcançam".
-- **Alavancas** (fase 2): três alavancas que podem ser ligadas e desligadas. O portão só abre na combinação certa, e a única pista é um bilhete enigmático do avô.
-- **Caixa e placa de pressão** (fase 2): o portão do fundo só fica aberto enquanto há peso na placa, que fica dentro de um buraco no chão.
-- **Cadeado com símbolos** (fase 3): o painel pede 4 números na ordem LUA, OLHO, VELA, CHAVE. Cada número está riscado numa parede da casa, em lugares escuros, altos ou protegidos por sombras.
-- **Luz e paredes:** a luz da lanterna e das velas não atravessa paredes, portas fechadas nem portões. O cone para no primeiro obstáculo.
-- **Perseguição final** (fase 3): A Coisa persegue a Iris pelo corredor e fica mais rápida a cada segundo. Se alcançar a Iris, é game over na hora. Apontar a lanterna para ela só a deixa um pouco mais lenta. No meio do caminho, um portão só abre com uma alavanca, e é preciso puxá-la sem parar de fugir.
-- **Diálogos com retratos:** cada fala usa a expressão da Iris que combina com o momento (neutra, falando, olhos fechados, assustada, gritando). A boca mexe enquanto o texto aparece e ela pisca de vez em quando.
-- **Sustos:** olhos aparecem nas janelas, e o coração acelera quando há perigo por perto.
+**Luz**
+- **Lanterna branca:** ilumina em cone, gasta pilha rápido e não atravessa paredes, portas nem portões.
+- **Lanterna UV (tecla Q):** revela plataformas e escritas invisíveis e é a única luz que fere os fantasmas, mas gasta 60% mais pilha.
+- **Velas e lâmpadas:** iluminam ao redor e afastam as criaturas. Só existe uma vela (checkpoint) por fase.
+
+**Criaturas**
+- **Sombras:** só andam no escuro. A luz as congela e, se ficar em cima delas, elas se dissolvem.
+- **Vultos:** voam e mergulham na Iris. A luz não os mata, só os espanta.
+- **Fantasmas:** atravessam paredes e não ligam para a luz branca. Só a luz UV os dissolve.
+- **A Coisa:** persegue a Iris pelo corredor e depois vira a chefe final. Na arena, ela invoca sombras, e só fica vulnerável à luz UV depois que as 3 lâmpadas da avó são acesas.
+
+**Puzzles**
+- **Chave escondida** (fase 1): a etiqueta só diz que a chave fica "onde as crianças não alcançam", e a primeira prateleira é alta demais para alcançar pulando do chão.
+- **Plataformas invisíveis** (fases 2 e 4): só aparecem sob a luz UV, mas continuam lá mesmo quando o jogador não as vê.
+- **Alavancas marcadas** (fase 2): só a luz UV mostra quais alavancas são as certas.
+- **Combinação de alavancas** (fase 3): a única pista é "a do meio sempre mente".
+- **Caixa e placa de pressão** (fase 3): o portão do fundo só fica aberto com peso na placa, que está num buraco.
+- **Alavanca com tempo** (fase 3): o portão fica aberto por 7 segundos, com tique-taque acelerando.
+- **Espelhos e feixe de luz** (fase 4): um projetor dispara um feixe; girando os espelhos, o jogador o guia até o cristal. O feixe também queima as sombras no caminho.
+- **Canção da caixinha** (fase 4): a caixinha toca uma melodia e acende as pedras na ordem. O jogador precisa repetir a sequência, enquanto um fantasma o persegue.
+- **Senha invisível** (fase 5): os quatro números do cadeado estão escritos com tinta invisível pela casa.
+- **Batalha final** (fase 5): acender as 3 lâmpadas fugindo d'A Coisa e das sombras invocadas, e depois mirar a luz UV nela até ela se desfazer.
+
+**Também tem:** diálogos com os 5 retratos de expressão da Iris (a boca mexe e ela pisca), olhos que aparecem nas janelas e um coração que acelera quando há perigo por perto.
 
 <details>
 <summary><b>Spoiler: soluções dos puzzles</b></summary>
 
-- **Chave (fase 1):** no alto das prateleiras da cozinha. É preciso subir pelas tábuas.
-- **Alavancas (fase 2):** a primeira e a terceira ligadas, e a do meio desligada.
-- **Caixa (fase 2):** empurre a caixa até ela cair no buraco com a placa de pressão.
-- **Cadeado (fase 3):** LUA 7, OLHO 1, VELA 9, CHAVE 4. A senha é **7194**.
-- **Perseguição (fase 3):** suba no bloco, puxe a alavanca que está em cima dele e corra para o portão enquanto ele sobe.
+- **Fase 1, chave:** no alto das prateleiras da cozinha. Empurre a caixa até perto da primeira prateleira, suba nela e vá pulando pelas tábuas.
+- **Fase 2, abismo:** com a luz UV, pule pelas plataformas que aparecem.
+- **Fase 2, alavancas:** ligue as que têm um olho desenhado em cima (a 1ª e a 4ª).
+- **Fase 3, alavancas:** a 1ª e a 3ª ligadas, a do meio desligada.
+- **Fase 3, caixa:** empurre a caixa até ela cair no buraco com a placa.
+- **Fase 3, portão com tempo:** dissolva a sombra do pilar antes de puxar a alavanca e corra pelos pilares.
+- **Fase 4, espelhos:** os dois primeiros em `\` e o terceiro em `/`.
+- **Fase 4, canção:** amarela, vermelha, azul, laranja, verde (pedras 3, 1, 5, 2, 4).
+- **Fase 5, cadeado:** LUA 7, OLHO 1, VELA 9, CHAVE 4. A senha é **7194**.
+- **Fase 5, chefe:** acenda as 3 lâmpadas (uma no chão à esquerda, uma na prateleira alta e uma no chão à direita) e depois segure a luz UV n'A Coisa.
 
 </details>
 
@@ -111,11 +129,20 @@ O jogo foi feito com o **[PixiJS v8](https://pixijs.com/)**, uma engine de rende
 | `TilingSprite` | Papel de parede das fases, portões de ferro que sobem e efeito de granulado |
 | `Container` | Organiza o jogo em camadas (cenário, objetos, entidades, partículas, interface) e a câmera |
 | `RenderTexture` + `blendMode` | **Sistema de iluminação**: as luzes são desenhadas com `add` numa textura de luz, que é aplicada sobre o mundo com `multiply` |
-| `Graphics` | Caixas de diálogo, HUD, barra de pilha, transições e flashes de dano |
+| `Graphics` | Caixas de diálogo, HUD, barra de pilha, barra do chefe, feixe de luz, transições e flashes de dano |
+| `Filter` + `GlProgram` | Shader GLSL próprio que aplica pontilhado (dithering Bayer 4×4) na luz, para a iluminação ficar com cara de pixel art |
 | `Text` + `TextStyle` + `CanvasTextMetrics` | Textos com fonte pixel e quebra de linha do efeito "máquina de escrever" |
 | `TextureSource.defaultOptions.scaleMode = 'nearest'` | Mantém a pixel art nítida quando a tela é ampliada |
 
 O jogo roda em resolução interna de **480×270**, ampliada para o tamanho da janela sem borrar os pixels.
+
+### Técnicas de pixel art e de iluminação
+
+- **Paletas com hue shifting:** as sombras puxam para o roxo e as luzes para o ciano, em vez de só escurecer ou clarear a mesma cor.
+- **Contorno seletivo:** cada parte da Iris tem um contorno da própria cor mais escura (pele, cabelo, roupa), em vez de preto puro em tudo.
+- **Paleta limitada:** cerca de 16 cores por sprite.
+- **Cenário com luz e sombra em cada peça:** tijolos, tábuas e pedras com borda clara em cima e escura embaixo, musgo no porão e papel de parede com estampa.
+- **Luz quantizada com dithering:** a luz é reduzida a poucos níveis e misturada com um padrão de pontos, como nos jogos de 16 bits, em vez de um degradê liso.
 
 Além do PixiJS, o projeto usa:
 
@@ -165,14 +192,16 @@ A versão otimizada fica na pasta `dist/`. Toda vez que algo é enviado para a b
 | --- | --- |
 | ![Tela de título](docs/titulo.png) | ![Diálogo com retrato](docs/dialogo.png) |
 | **Tela de título** | **Diálogos com os retratos da Iris** |
-| ![Lanterna contra a sombra](docs/lanterna.png) | ![Cozinha e chave](docs/cozinha.png) |
-| **A lanterna paralisando uma sombra** | **Prateleiras da cozinha e a chave** |
-| ![Porão](docs/porao.png) | ![Cadeado de código](docs/codigo.png) |
-| **O porão: caixa e placa de pressão** | **O cadeado de código** |
-| ![Marcas na parede](docs/marcas.png) | ![Olhos na janela](docs/janela.png) |
-| **Procurando as marcas da senha** | **Olhos na janela** |
-| ![Perseguição](docs/perseguicao.png) | |
-| **A Coisa** | |
+| ![Lanterna](docs/lanterna.png) | ![Cozinha e chave](docs/cozinha.png) |
+| **A lanterna no térreo** | **Prateleiras da cozinha e a chave** |
+| ![Luz UV](docs/uv.png) | ![Alavancas marcadas](docs/alavancas_uv.png) |
+| **A luz UV revelando plataformas e um fantasma** | **Escritas invisíveis nas alavancas** |
+| ![Porão](docs/porao.png) | ![Espelhos](docs/espelhos.png) |
+| **O porão: caixa e placa de pressão** | **Espelhos guiando o feixe até o cristal** |
+| ![Caixinha de música](docs/musica.png) | ![Senha invisível](docs/marcas.png) |
+| **As pedras musicais** | **Procurando a senha com a luz UV** |
+| ![Chefe final](docs/chefe.png) | |
+| **A batalha contra A Coisa** | |
 
 ## Estrutura do projeto
 
@@ -190,9 +219,9 @@ insone/
     ├── config.js              resolução, física e constantes
     ├── core/                  recursos (texturas), entrada, som e progresso salvo
     ├── cenas/                 título, jogo e final
-    ├── jogo/                  fase, física, Iris, sombras, vultos, A Coisa, objetos, luz, partículas
+    ├── jogo/                  fase, física, Iris, sombras, vultos, fantasmas, A Coisa, chefe, objetos, luz, partículas
     ├── ui/                    diálogo, HUD, menus e painel do código
-    └── dados/fases.js         mapas das 3 fases, falas, bilhetes e eventos
+    └── dados/fases.js         mapas das 5 fases, falas, bilhetes, escritas e eventos
 ```
 
 As fases são desenhadas como **mapas de texto** em `src/dados/fases.js`. Cada caractere vira um elemento do jogo: `#` é parede, `S` é sombra, `C` é caixa, `K` é chave, `N` é bilhete e assim por diante. A legenda completa está no início do arquivo.
@@ -200,7 +229,7 @@ As fases são desenhadas como **mapas de texto** em `src/dados/fases.js`. Cada c
 ## Arte e som
 
 - **Iris:** a personagem e os 5 retratos de expressão são pixel art original do grupo (`arte/retratos`). O sprite que anda e pula, em estilo chibi, foi desenhado com base neles.
-- **Cenário, sombras, vultos, A Coisa e objetos:** pixel art feita pelo grupo para o jogo.
+- **Cenário, criaturas e objetos:** pixel art feita pelo grupo para o jogo.
 - **Som:** não usamos nenhum arquivo de áudio. A trilha (caixinha de música, drone ambiente, pulsação da perseguição, batimento cardíaco) e todos os efeitos sonoros são sintetizados em tempo real com a Web Audio API.
 
 ## Créditos

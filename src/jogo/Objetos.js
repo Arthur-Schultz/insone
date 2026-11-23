@@ -1,6 +1,6 @@
 import { Sprite, TilingSprite } from 'pixi.js'
 import { FISICA, LANTERNA, TILE } from '../config.js'
-import { O, R, T } from '../core/Recursos.js'
+import { A, O, R, T, X } from '../core/Recursos.js'
 import { mover, sobrepoe } from './Fisica.js'
 
 export class Caixa {
@@ -118,8 +118,12 @@ export class Portao {
 }
 
 export class Alavanca {
-  constructor(cena, tx, ty) {
+  constructor(cena, tx, ty, grupo = 'alavanca', tempo = 0) {
     this.cena = cena
+    this.grupo = grupo
+    this.tempo = tempo
+    this.restante = 0
+    this.relogioTique = 0
     this.x = tx * TILE
     this.y = ty * TILE
     this.w = TILE
@@ -129,13 +133,40 @@ export class Alavanca {
     this.texturaDesligada = R.tiles[T.ALAVANCA_OFF]
     this.sprite = new Sprite(R.tiles[T.ALAVANCA_OFF])
     this.sprite.position.set(this.x, this.y)
+    if (grupo === 'tempo') this.sprite.tint = 0xffb0b0
+  }
+
+  definir(ligada) {
+    this.ligada = ligada
+    this.sprite.texture = R.tiles[ligada ? T.ALAVANCA_ON : T.ALAVANCA_OFF]
   }
 
   interagir() {
-    this.ligada = !this.ligada
-    this.sprite.texture = R.tiles[this.ligada ? T.ALAVANCA_ON : T.ALAVANCA_OFF]
+    if (this.grupo === 'tempo') {
+      this.definir(true)
+      this.restante = this.tempo
+      this.cena.som.alavanca()
+      this.cena.portoes.filter((p) => p.grupo === 'tempo').forEach((p) => p.definir(true))
+      this.cena.aviso(`O portão vai fechar em ${this.tempo} segundos!`)
+      return
+    }
+    this.definir(!this.ligada)
     this.cena.som.alavanca()
     this.cena.verificarAlavancas()
+  }
+
+  atualizar(dt) {
+    if (this.restante <= 0) return
+    this.restante -= dt
+    this.relogioTique -= dt
+    if (this.relogioTique <= 0) {
+      this.relogioTique = this.restante < 2 ? 0.2 : 0.5
+      this.cena.som.bip()
+    }
+    if (this.restante <= 0) {
+      this.definir(false)
+      this.cena.portoes.filter((p) => p.grupo === 'tempo').forEach((p) => p.definir(false))
+    }
   }
 }
 
@@ -173,8 +204,7 @@ export class Item {
     this.h = 12
     this.coletado = false
     this.tempo = Math.random() * 6
-    const textura = { chave: T.CHAVE, pilha: T.PILHA, coracao: T.CORACAO }[tipo]
-    this.sprite = new Sprite(R.tiles[textura])
+    this.sprite = new Sprite(tipo === 'uv' ? R.extras[X.LANTERNA_UV] : R.tiles[{ chave: T.CHAVE, pilha: T.PILHA, coracao: T.CORACAO }[tipo]])
     this.sprite.anchor.set(0.5)
     this.baseX = tx * TILE + 8
     this.baseY = ty * TILE + 8
@@ -198,6 +228,11 @@ export class Item {
       iris.recarregar(LANTERNA.recarga)
       this.cena.som.pegar()
       this.cena.aviso('Pilhas novas para a lanterna.')
+    } else if (this.tipo === 'uv') {
+      this.cena.estado.temUV = true
+      iris.recarregar(100)
+      this.cena.som.chave()
+      this.cena.pegouUV()
     } else {
       iris.sanidade++
       this.cena.som.pegar()
@@ -347,5 +382,173 @@ export class Janela {
     this.sprite.texture = R.janela[visivel ? 1 : 0]
     this.brilho.visible = visivel && Math.random() > 0.04
     this.brilho.x = this.x + (visivel && Math.random() < 0.1 ? Math.round(Math.random() * 2 - 1) : 0)
+  }
+}
+
+export class Revelavel {
+  constructor(cena, tx, ty, textura, opcoes = {}) {
+    this.cena = cena
+    this.x = tx * TILE
+    this.y = ty * TILE
+    this.w = TILE
+    this.h = TILE
+    this.revelado = 0
+    this.visto = false
+    this.sprite = new Sprite(textura)
+    this.sprite.position.set(this.x, this.y)
+    this.sprite.alpha = 0
+    this.minimo = opcoes.minimo ?? 0
+  }
+
+  atualizar(dt) {
+    const uv = this.cena.luzUV(this.x + 8, this.y + 8)
+    this.revelado = Math.max(0, Math.min(1, this.revelado + (uv ? dt * 4 : -dt * 1.2)))
+    if (this.revelado > 0.5) this.visto = true
+    this.sprite.alpha = Math.max(this.minimo, this.revelado) * (0.85 + Math.random() * 0.15 * this.revelado)
+  }
+}
+
+export class EscritaUV extends Revelavel {
+  constructor(cena, tx, ty, indice, simbolo) {
+    const texturas = { seta: X.ESCRITA_SETA, olho: X.ESCRITA_OLHO, x: X.ESCRITA_X }
+    super(cena, tx, ty, R.extras[texturas[simbolo] ?? X.ESCRITA_OLHO])
+    this.indice = indice
+    this.rotulo = 'ler'
+  }
+
+  get interativo() {
+    return this.revelado > 0.3
+  }
+
+  interagir() {
+    this.cena.som.sussurro()
+    this.cena.lerEscrita(this.indice)
+  }
+}
+
+export class Espelho {
+  constructor(cena, tx, ty, inicial) {
+    this.cena = cena
+    this.tx = tx
+    this.ty = ty
+    this.x = tx * TILE
+    this.y = ty * TILE
+    this.w = TILE
+    this.h = TILE
+    this.barra = inicial || '/'
+    this.rotulo = 'girar espelho'
+    this.sprite = new Sprite(R.extras[this.barra === '/' ? X.ESPELHO_BARRA : X.ESPELHO_CONTRA])
+    this.sprite.position.set(this.x, this.y)
+  }
+
+  interagir() {
+    this.barra = this.barra === '/' ? '\\' : '/'
+    this.sprite.texture = R.extras[this.barra === '/' ? X.ESPELHO_BARRA : X.ESPELHO_CONTRA]
+    this.cena.som.alavanca()
+  }
+}
+
+export class Projetor {
+  constructor(cena, tx, ty, direcao) {
+    this.tx = tx
+    this.ty = ty
+    this.x = tx * TILE
+    this.y = ty * TILE
+    this.direcao = direcao || '>'
+    this.sprite = new Sprite(R.extras[X.PROJETOR])
+    this.sprite.anchor.set(0.5)
+    this.sprite.position.set(this.x + 8, this.y + 8)
+    this.sprite.rotation = { '>': 0, 'v': Math.PI / 2, '<': Math.PI, '^': -Math.PI / 2 }[this.direcao]
+  }
+}
+
+export class Sensor {
+  constructor(cena, tx, ty) {
+    this.tx = tx
+    this.ty = ty
+    this.x = tx * TILE
+    this.y = ty * TILE
+    this.ativo = false
+    this.sprite = new Sprite(R.extras[X.SENSOR])
+    this.sprite.position.set(this.x, this.y)
+  }
+
+  definir(ativo) {
+    this.ativo = ativo
+    this.sprite.texture = R.extras[ativo ? X.SENSOR_ATIVO : X.SENSOR]
+  }
+}
+
+export class Tecla {
+  constructor(cena, tx, ty, indice) {
+    this.cena = cena
+    this.indice = indice
+    this.x = tx * TILE
+    this.y = ty * TILE
+    this.w = TILE
+    this.h = TILE
+    this.brilho = 0
+    this.rotulo = 'tocar'
+    this.sprite = new Sprite(R.extras[X.TECLA + indice])
+    this.sprite.position.set(this.x, this.y)
+  }
+
+  acender(tempo = 0.35) {
+    this.brilho = tempo
+  }
+
+  interagir() {
+    this.acender()
+    this.cena.som.nota(this.indice)
+    this.cena.tocarTecla(this.indice)
+  }
+
+  atualizar(dt) {
+    if (this.brilho > 0) this.brilho -= dt
+    this.sprite.texture = R.extras[(this.brilho > 0 ? X.TECLA_ACESA : X.TECLA) + this.indice]
+  }
+}
+
+export class Caixinha {
+  constructor(cena, tx, ty) {
+    this.cena = cena
+    this.x = tx * TILE
+    this.y = ty * TILE
+    this.w = TILE
+    this.h = TILE
+    this.rotulo = 'abrir caixinha'
+    this.sprite = new Sprite(R.extras[X.CAIXINHA])
+    this.sprite.position.set(this.x, this.y)
+  }
+
+  interagir() {
+    this.sprite.texture = R.extras[X.CAIXINHA_ABERTA]
+    this.cena.tocarMelodia()
+  }
+}
+
+export class Lampada {
+  constructor(cena, tx, ty) {
+    this.cena = cena
+    this.x = tx * TILE
+    this.y = (ty - 1) * TILE
+    this.w = TILE
+    this.h = TILE * 2
+    this.acesa = false
+    this.rotulo = 'acender'
+    this.sprite = new Sprite(R.altos[A.LAMPADA])
+    this.sprite.position.set(this.x, this.y)
+  }
+
+  interagir() {
+    if (this.acesa) return
+    if (!this.cena.chefe) {
+      this.cena.aviso('Não tem energia... ainda.')
+      return
+    }
+    this.acesa = true
+    this.sprite.texture = R.altos[A.LAMPADA_ACESA]
+    this.cena.som.vela()
+    this.cena.acendeuLampada()
   }
 }

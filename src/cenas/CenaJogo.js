@@ -1,6 +1,6 @@
 import { Container, Graphics, Sprite, TilingSprite } from 'pixi.js'
 import { ALTURA, CORES, LANTERNA, LARGURA, TILE } from '../config.js'
-import { R } from '../core/Recursos.js'
+import { R, X } from '../core/Recursos.js'
 import { salvarProgresso } from '../core/Progresso.js'
 import { FASES } from '../dados/fases.js'
 import { Coisa } from '../jogo/Coisa.js'
@@ -8,7 +8,9 @@ import { Fase } from '../jogo/Fase.js'
 import { sobrepoe } from '../jogo/Fisica.js'
 import { Iluminacao } from '../jogo/Iluminacao.js'
 import { Iris } from '../jogo/Iris.js'
-import { Alavanca, Bilhete, Caixa, Item, Janela, Marca, Placa, Porta, Portao, Saida, Teclado, Vela } from '../jogo/Objetos.js'
+import { Alavanca, Bilhete, Caixa, Caixinha, EscritaUV, Espelho, Item, Janela, Lampada, Marca, Placa, Porta, Portao, Projetor, Revelavel, Saida, Sensor, Tecla, Teclado, Vela } from '../jogo/Objetos.js'
+import { Chefe } from '../jogo/Chefe.js'
+import { Fantasma } from '../jogo/Fantasma.js'
 import { Particulas } from '../jogo/Particulas.js'
 import { Sombra } from '../jogo/Sombra.js'
 import { Vulto } from '../jogo/Vulto.js'
@@ -36,6 +38,12 @@ export class CenaJogo {
     this.tremorTempo = 0
     this.perseguindo = false
     this.coisa = null
+    this.chefe = null
+    this.entradaPiano = []
+    this.filaMelodia = []
+    this.relogioMelodia = 0
+    this.feixes = []
+    if (this.dados.comecaComUV) this.estado.temUV = true
     this.construir()
     salvarProgresso({ fase: indice })
     this.som.definirModo('jogo')
@@ -66,6 +74,19 @@ export class CenaJogo {
     this.alavancas = []
     this.saidas = []
     this.gatilhos = []
+    this.fantasmas = []
+    this.revelaveis = []
+    this.escritas = []
+    this.espelhos = []
+    this.projetores = []
+    this.sensores = []
+    this.teclas = []
+    this.caixinhas = []
+    this.lampadas = []
+    const escritas = []
+    const espelhos = []
+    const projetores = []
+    const teclas = []
     let inicio = { x: 32, y: 200 }
     const notas = []
     const marcas = []
@@ -75,6 +96,17 @@ export class CenaJogo {
       if (c === 'P') inicio = { x: tx * TILE, y: ty * TILE }
       if (c === 'S') this.sombras.push(new Sombra(this, tx * TILE, ty * TILE))
       if (c === 'U') this.vultos.push(new Vulto(this, tx * TILE, ty * TILE))
+      if (c === 'F') this.fantasmas.push(new Fantasma(this, tx * TILE, ty * TILE))
+      if (c === ':') this.revelaveis.push(new Revelavel(this, tx, ty, R.extras[X.PLATAFORMA_UV], { minimo: 0.04 }))
+      if (c === 'u') escritas.push({ tx, ty })
+      if (c === 'M') espelhos.push({ tx, ty })
+      if (c === 'Z') projetores.push({ tx, ty })
+      if (c === 'Y') this.sensores.push(new Sensor(this, tx, ty))
+      if (c === 'n') teclas.push({ tx, ty })
+      if (c === 'o') this.caixinhas.push(new Caixinha(this, tx, ty))
+      if (c === 'l') this.lampadas.push(new Lampada(this, tx, ty))
+      if (c === 'Q') this.itens.push(new Item(this, tx, ty, 'uv'))
+      if (c === 'h') this.alavancas.push(new Alavanca(this, tx, ty, 'tempo', dados.tempoAlavanca || 6))
       if (c === 'm') marcas.push({ tx, ty })
       if (c === 'C') this.caixas.push(new Caixa(this, tx, ty))
       if (c === 'K') this.itens.push(new Item(this, tx, ty, 'chave'))
@@ -91,10 +123,11 @@ export class CenaJogo {
       if (c === 'w') this.janelas.push(new Janela(this, tx, ty))
       if (c === '!') this.gatilhos.push({ x: tx * TILE, disparado: false })
       if (c === 'A') this.pontoCoisa = { x: tx * TILE, y: ty * TILE }
-      if ((c === 'G' || c === 'H') && acima !== c) {
+      const grupos = { G: 'alavanca', H: 'placa', J: 'feixe', I: 'musica', W: 'chefe', g: 'tempo' }
+      if (grupos[c] && acima !== c) {
         let base = ty
         while (this.fase.char(tx, base + 1) === c) base++
-        this.portoes.push(new Portao(this, tx, ty, base, c === 'G' ? 'alavanca' : 'placa'))
+        this.portoes.push(new Portao(this, tx, ty, base, grupos[c]))
       }
     })
     notas.sort((a, b) => a.tx - b.tx)
@@ -102,18 +135,30 @@ export class CenaJogo {
     marcas.sort((a, b) => a.tx - b.tx)
     marcas.forEach((m, i) => this.marcas.push(new Marca(this, m.tx, m.ty, i)))
     this.alavancas.sort((a, b) => a.x - b.x)
+    escritas.sort((a, b) => a.tx - b.tx)
+    escritas.forEach((e, i) => this.escritas.push(new EscritaUV(this, e.tx, e.ty, i, (dados.escritas?.[i] || {}).simbolo || 'olho')))
+    espelhos.sort((a, b) => a.tx - b.tx)
+    espelhos.forEach((e, i) => this.espelhos.push(new Espelho(this, e.tx, e.ty, (dados.espelhos || [])[i])))
+    projetores.sort((a, b) => a.tx - b.tx)
+    projetores.forEach((e, i) => this.projetores.push(new Projetor(this, e.tx, e.ty, (dados.projetores || [])[i])))
+    teclas.sort((a, b) => a.tx - b.tx)
+    teclas.forEach((e, i) => this.teclas.push(new Tecla(this, e.tx, e.ty, i)))
+    if (dados.marcasUV) this.marcas.forEach((m) => (m.sprite.alpha = 0))
     this.gatilhos.sort((a, b) => a.x - b.x)
     this.gatilhos.forEach((g, i) => (g.evento = dados.eventos[i]))
 
-    const fundoObjetos = [...this.janelas, ...this.marcas, ...this.saidas, ...this.portas, ...this.teclados, ...this.bilhetes, ...this.alavancas, ...this.placas, ...this.velas, ...this.portoes]
+    const fundoObjetos = [...this.janelas, ...this.marcas, ...this.revelaveis, ...this.escritas, ...this.lampadas, ...this.sensores, ...this.projetores, ...this.espelhos, ...this.teclas, ...this.caixinhas, ...this.saidas, ...this.portas, ...this.teclados, ...this.bilhetes, ...this.alavancas, ...this.placas, ...this.velas, ...this.portoes]
     for (const o of fundoObjetos) this.camadaObjetos.addChild(o.sprite)
     for (const o of [...this.caixas, ...this.itens]) this.camadaObjetos.addChild(o.sprite)
     for (const s of [...this.sombras, ...this.vultos]) {
       this.camadaEntidades.addChild(s.sprite)
       this.acima.addChild(s.olhos)
     }
+    for (const f of this.fantasmas) this.acima.addChild(f.sprite, f.olhos)
+    this.feixeGfx = new Graphics()
+    this.mundo.addChild(this.feixeGfx)
     for (const j of this.janelas) this.acima.addChild(j.brilho)
-    this.interagiveis = [...this.portas, ...this.alavancas, ...this.bilhetes, ...this.marcas, ...this.teclados]
+    this.interagiveis = [...this.portas, ...this.alavancas, ...this.bilhetes, ...this.marcas, ...this.teclados, ...this.escritas, ...this.espelhos, ...this.teclas, ...this.caixinhas, ...this.lampadas]
 
     this.iris = new Iris(this, inicio.x, inicio.y)
     this.camadaEntidades.addChild(this.iris.sprite)
@@ -136,6 +181,13 @@ export class CenaJogo {
     this.flash = new Graphics().rect(0, 0, LARGURA, ALTURA).fill(0xff1030)
     this.flash.alpha = 0
     this.hud = new Hud(dados.nome)
+    this.barraChefe = new Container()
+    this.barraChefe.visible = false
+    this.barraChefeGfx = new Graphics()
+    const nomeChefe = texto('A COISA', { fill: 0xff4060, fontSize: 16, stroke: { color: 0x000000, width: 3 } })
+    nomeChefe.anchor.set(0.5, 0)
+    nomeChefe.position.set(LARGURA / 2, 2)
+    this.barraChefe.addChild(this.barraChefeGfx, nomeChefe)
     this.dialogo = new Dialogo(this.som)
     this.painel = new PainelCodigo(this.som, dados.codigo || '0000', dados.ordemCodigo)
     this.sobreposicao = new Container()
@@ -144,7 +196,7 @@ export class CenaJogo {
     this.fadeAlvo = 0
     this.titulo = texto(`${this.indice + 1}. ${dados.nome.toUpperCase()}`, { fill: 0xc8c0d8, fontSize: 32, stroke: { color: 0x000000, width: 4 } })
     this.titulo.anchor.set(0.5)
-    this.titulo.position.set(LARGURA / 2, 70)
+    this.titulo.position.set(LARGURA / 2, 126)
     this.titulo.alpha = 0
 
     this.raiz.addChild(
@@ -156,6 +208,7 @@ export class CenaJogo {
       this.granulado,
       this.flash,
       this.hud.container,
+      this.barraChefe,
       this.titulo,
       this.dialogo.container,
       this.painel.container,
@@ -196,19 +249,181 @@ export class CenaJogo {
     return maximo
   }
 
-  estaIluminado(x, y) {
+  luzLanterna(x, y) {
     const iris = this.iris
-    if (iris.lanternaAtiva()) {
-      const dx = (x - iris.lanternaX) * iris.direcao
-      const dy = y - iris.lanternaY
-      const perto = Math.hypot(dx, dy) < 22
-      const noCone = dx > 0 && dx < LANTERNA.alcance && Math.abs(dy) < dx * LANTERNA.aberturaVertical + 8
-      if ((perto || noCone) && this.temVisao(iris.lanternaX, iris.lanternaY, x, y)) return true
-    }
+    if (!iris.lanternaAtiva()) return false
+    const dx = (x - iris.lanternaX) * iris.direcao
+    const dy = y - iris.lanternaY
+    const perto = Math.hypot(dx, dy) < 22
+    const noCone = dx > 0 && dx < LANTERNA.alcance && Math.abs(dy) < dx * LANTERNA.aberturaVertical + 8
+    return (perto || noCone) && this.temVisao(iris.lanternaX, iris.lanternaY, x, y)
+  }
+
+  luzUV(x, y) {
+    return this.iris.modoUV && this.luzLanterna(x, y)
+  }
+
+  estaIluminado(x, y) {
+    if (this.luzLanterna(x, y)) return true
     for (const v of this.velas) {
       if (v.acesa && Math.hypot(x - (v.x + 8), y - (v.y + 8)) < 42 && this.temVisao(v.x + 8, v.y + 6, x, y)) return true
     }
+    for (const l of this.lampadas) {
+      if (l.acesa && Math.hypot(x - (l.x + 8), y - (l.y + 8)) < 64 && this.temVisao(l.x + 8, l.y + 8, x, y)) return true
+    }
+    for (const f of this.feixes) {
+      const vx = f.x1 - f.x0
+      const vy = f.y1 - f.y0
+      const comp = vx * vx + vy * vy || 1
+      const t = Math.max(0, Math.min(1, ((x - f.x0) * vx + (y - f.y0) * vy) / comp))
+      if (Math.hypot(x - (f.x0 + vx * t), y - (f.y0 + vy * t)) < 12) return true
+    }
     return false
+  }
+
+  tracarFeixes() {
+    this.feixes = []
+    const sensoresAtivos = new Set()
+    const direcoes = { '>': [1, 0], '<': [-1, 0], '^': [0, -1], 'v': [0, 1] }
+    for (const p of this.projetores) {
+      let [dx, dy] = direcoes[p.direcao]
+      let tx = p.tx
+      let ty = p.ty
+      let inicioX = tx * TILE + 8
+      let inicioY = ty * TILE + 8
+      for (let passo = 0; passo < 160; passo++) {
+        tx += dx
+        ty += dy
+        const cx = tx * TILE + 8
+        const cy = ty * TILE + 8
+        if (this.fase.solido(tx, ty) || this.bloqueiaLuz(cx, cy)) {
+          this.feixes.push({ x0: inicioX, y0: inicioY, x1: cx - dx * 8, y1: cy - dy * 8 })
+          break
+        }
+        const sensor = this.sensores.find((s) => s.tx === tx && s.ty === ty)
+        if (sensor) {
+          sensoresAtivos.add(sensor)
+          this.feixes.push({ x0: inicioX, y0: inicioY, x1: cx, y1: cy })
+          break
+        }
+        const espelho = this.espelhos.find((e) => e.tx === tx && e.ty === ty)
+        if (espelho) {
+          this.feixes.push({ x0: inicioX, y0: inicioY, x1: cx, y1: cy })
+          inicioX = cx
+          inicioY = cy
+          if (espelho.barra === '/') [dx, dy] = [-dy, -dx]
+          else [dx, dy] = [dy, dx]
+        }
+      }
+    }
+    for (const s of this.sensores) {
+      const ativo = sensoresAtivos.has(s)
+      if (ativo && !s.ativo) {
+        this.som.feixe()
+        this.aviso('O cristal acendeu!')
+      }
+      s.definir(ativo)
+    }
+    const algum = this.sensores.length > 0 && this.sensores.every((s) => s.ativo)
+    for (const p of this.portoes) if (p.grupo === 'feixe') p.definir(algum)
+    const g = this.feixeGfx
+    g.clear()
+    for (const f of this.feixes) {
+      g.moveTo(f.x0, f.y0).lineTo(f.x1, f.y1).stroke({ color: 0xfff0b0, width: 3, alpha: 0.35 })
+      g.moveTo(f.x0, f.y0).lineTo(f.x1, f.y1).stroke({ color: 0xffffff, width: 1, alpha: 0.9 })
+    }
+  }
+
+  pegouUV() {
+    this.iniciarDialogo(this.dados.falasUV || [{ n: 'Dica', t: 'Q alterna entre luz branca e ultravioleta.' }])
+  }
+
+  lerEscrita(indice) {
+    const e = (this.dados.escritas || [])[indice]
+    this.iniciarDialogo(e ? e.falas : [{ t: '...' }])
+  }
+
+  tocarTecla(indice) {
+    if (this.musicaResolvida) return
+    this.entradaPiano.push(indice)
+    const melodia = this.dados.melodia || []
+    const certo = this.entradaPiano.every((n, i) => n === melodia[i])
+    if (!certo) {
+      this.entradaPiano = []
+      this.som.errado()
+      this.tremer(2, 0.3)
+      this.aviso('A melodia desafinou...')
+      return
+    }
+    if (this.entradaPiano.length === melodia.length) {
+      this.musicaResolvida = true
+      this.som.correto()
+      this.portoes.filter((p) => p.grupo === 'musica').forEach((p) => p.definir(true))
+      this.aviso('Algo destrancou com a música.')
+    }
+  }
+
+  tocarMelodia() {
+    this.filaMelodia = (this.dados.melodia || []).slice()
+    this.relogioMelodia = 0.6
+    this.entradaPiano = []
+  }
+
+  atualizarMelodia(dt) {
+    if (!this.filaMelodia.length) return
+    this.relogioMelodia -= dt
+    if (this.relogioMelodia > 0) return
+    this.relogioMelodia = 0.62
+    const n = this.filaMelodia.shift()
+    this.som.nota(n)
+    if (this.teclas[n]) this.teclas[n].acender(0.45)
+  }
+
+  acendeuLampada() {
+    const acesas = this.lampadas.filter((l) => l.acesa).length
+    this.som.rugido()
+    this.tremer(5, 0.6)
+    if (this.chefe) this.chefe.recuo = 1
+    if (acesas >= this.lampadas.length && this.chefe) {
+      this.chefe.vulneravel = true
+      this.iniciarDialogo(this.dados.falasExposta || [{ r: 'gritando', t: 'Ela está exposta!' }])
+    } else this.aviso(`Lâmpadas acesas: ${acesas} de ${this.lampadas.length}`)
+  }
+
+  chefeDerrotado() {
+    this.som.definirModo('jogo')
+    this.portoes.filter((p) => p.grupo === 'chefe').forEach((p) => p.definir(true))
+    this.iniciarDialogo(this.dados.falasChefeFim || [{ r: 'olhos_fechados', t: 'Acabou.' }])
+  }
+
+  iniciarChefe() {
+    if (this.coisa) {
+      this.coisa.destruir()
+      this.coisa = null
+      this.perseguindo = false
+    }
+    const p = this.dados.pontoChefe || { tx: Math.floor(this.iris.x / TILE) + 8, ty: 8 }
+    this.chefe = new Chefe(this, p.tx * TILE + 8, p.ty * TILE)
+    this.chaoArena = (this.dados.linhaArena || 15) * TILE
+    this.camadaEntidades.addChild(this.chefe.sprite)
+    this.acima.addChild(this.chefe.olhos)
+    this.barraChefe.visible = true
+    this.som.definirModo('perseguicao')
+  }
+
+  reiniciarChefe() {
+    if (!this.chefe) return
+    this.chefe.sprite.destroy()
+    this.chefe.olhos.destroy()
+    this.chefe = null
+    this.barraChefe.visible = false
+    for (const l of this.lampadas) {
+      l.acesa = false
+      l.sprite.texture = R.altos[0]
+    }
+    for (const s of this.sombras) if (s.invocada && !s.morta) s.morrer()
+    for (const g of this.gatilhos) if (g.evento && g.evento.tipo === 'chefe') g.disparado = false
+    this.som.definirModo('jogo')
   }
 
   aviso(mensagem) {
@@ -326,6 +541,7 @@ export class CenaJogo {
   renascer(completo) {
     const iris = this.iris
     this.pararPerseguicao()
+    if (this.chefe && !this.chefe.derrotado) this.reiniciarChefe()
     for (const a of this.alavancas) {
       if (this.dados.reiniciarAlavancas && a.ligada) {
         a.ligada = false
@@ -454,6 +670,16 @@ export class CenaJogo {
       this.tremer(4, 0.6)
       this.iniciarDialogo(evento.falas)
     }
+    if (evento.tipo === 'chefe') {
+      if (this.coisa) {
+        this.coisa.destruir()
+        this.coisa = null
+        this.perseguindo = false
+      }
+      this.som.rugido()
+      this.tremer(8, 1.5)
+      this.iniciarDialogo(evento.falas, () => this.iniciarChefe())
+    }
     if (evento.tipo === 'perseguicao') {
       this.som.rugido()
       this.tremer(6, 1.2)
@@ -504,6 +730,27 @@ export class CenaJogo {
       if (viva && s.morta) this.estado.sombras++
     }
     for (const v of this.vultos) v.atualizar(dt)
+    for (const f of this.fantasmas) {
+      const viva = !f.morta
+      f.atualizar(dt)
+      if (viva && f.morta) this.estado.sombras++
+    }
+    for (const r of this.revelaveis) r.atualizar(dt)
+    for (const e of this.escritas) e.atualizar(dt)
+    if (this.dados.marcasUV) {
+      for (const m of this.marcas) {
+        const uv = this.luzUV(m.x + 8, m.y + 8)
+        m.revelado = Math.max(0, Math.min(1, (m.revelado || 0) + (uv ? dt * 4 : -dt)))
+        if (m.revelado > 0.5) m.visto = true
+        m.sprite.alpha = m.revelado
+        m.sprite.tint = 0xd090ff
+      }
+    }
+    for (const t of this.teclas) t.atualizar(dt)
+    for (const a of this.alavancas) a.atualizar(dt)
+    this.atualizarMelodia(dt)
+    if (this.projetores.length) this.tracarFeixes()
+    if (this.chefe) this.chefe.atualizar(dt)
     for (const i of this.itens) i.atualizar(dt)
     for (const v of this.velas) v.atualizar(dt)
     for (const j of this.janelas) j.atualizar(dt)
@@ -515,6 +762,9 @@ export class CenaJogo {
     const area = { x: iris.x - 6, y: iris.y - 4, w: iris.w + 12, h: iris.h + 8 }
     for (const o of this.interagiveis) {
       if (o.aberta) continue
+      if (o.interativo === false) continue
+      if (this.dados.marcasUV && this.marcas.includes(o) && !(o.revelado > 0.3)) continue
+      if (o.acesa) continue
       if (!sobrepoe(area, o)) continue
       const d = Math.abs(o.x + o.w / 2 - iris.centroX)
       if (d < melhor) {
@@ -558,12 +808,13 @@ export class CenaJogo {
     }
 
     let proximidade = 0
-    for (const s of [...this.sombras, ...this.vultos]) {
+    for (const s of [...this.sombras, ...this.vultos, ...this.fantasmas]) {
       if (s.morta) continue
       const d = Math.hypot(s.centroX - iris.centroX, s.centroY - iris.centroY)
       proximidade = Math.max(proximidade, 1 - (d - 30) / 170)
     }
     if (this.coisa) proximidade = Math.max(proximidade, 1 - (iris.centroX - this.coisa.centroX - 40) / 260)
+    if (this.chefe && !this.chefe.derrotado) proximidade = 1
     this.som.batimento(Math.max(0, Math.min(1, proximidade)))
   }
 
@@ -576,10 +827,25 @@ export class CenaJogo {
     if (iris.lanternaAtiva()) {
       const forca = iris.bateria < 20 ? 0.75 : 1
       const livre = this.alcanceLivre(170) + 14
-      luzes.push({ cone: true, x: iris.lanternaX, y: iris.lanternaY, alcance: Math.min(170, livre), direcao: iris.direcao, cor: 0xffe6b0, intensidade: forca })
-      luzes.push({ cone: true, x: iris.lanternaX, y: iris.lanternaY, alcance: Math.min(120, livre), direcao: iris.direcao, cor: 0xfff0d0, intensidade: 0.7 * forca })
-      luzes.push({ x: iris.lanternaX, y: iris.lanternaY, raio: 28, cor: 0xffd890, intensidade: 0.8 * forca })
+      const uv = iris.modoUV
+      luzes.push({ cone: true, x: iris.lanternaX, y: iris.lanternaY, alcance: Math.min(170, livre), direcao: iris.direcao, cor: uv ? 0x9a50ff : 0xffe6b0, intensidade: forca * (uv ? 0.85 : 1) })
+      luzes.push({ cone: true, x: iris.lanternaX, y: iris.lanternaY, alcance: Math.min(120, livre), direcao: iris.direcao, cor: uv ? 0xd0a0ff : 0xfff0d0, intensidade: 0.6 * forca })
+      luzes.push({ x: iris.lanternaX, y: iris.lanternaY, raio: 28, cor: uv ? 0xb070ff : 0xffd890, intensidade: 0.8 * forca })
     }
+    for (const l of this.lampadas) if (l.acesa && visivel(l.x, l.y)) luzes.push({ x: l.x + 8, y: l.y + 6, raio: 96 + Math.sin(this.tempo * 9 + l.x) * 3, cor: 0xffe0a0, intensidade: 1 })
+    for (let i = 0; i < this.feixes.length; i++) {
+      const f = this.feixes[i]
+      const passos = Math.max(1, Math.round(Math.hypot(f.x1 - f.x0, f.y1 - f.y0) / 24))
+      for (let k = 0; k <= passos; k++) {
+        const x = f.x0 + ((f.x1 - f.x0) * k) / passos
+        const y = f.y0 + ((f.y1 - f.y0) * k) / passos
+        if (visivel(x, y, 30)) luzes.push({ x, y, raio: 22, cor: 0xfff0c0, intensidade: 0.6 })
+      }
+    }
+    for (const s of this.sensores) if (visivel(s.x, s.y)) luzes.push({ x: s.x + 8, y: s.y + 7, raio: s.ativo ? 40 : 14, cor: 0x60ffc0, intensidade: s.ativo ? 0.9 : 0.4 })
+    for (const t of this.teclas) if (t.brilho > 0) luzes.push({ x: t.x + 8, y: t.y + 6, raio: 34, cor: 0xffffff, intensidade: 0.8 })
+    for (const r of [...this.revelaveis, ...this.escritas]) if (r.revelado > 0.05 && visivel(r.x, r.y)) luzes.push({ x: r.x + 8, y: r.y + 4, raio: 18, cor: 0xb060ff, intensidade: r.revelado * 0.7 })
+    if (this.chefe && !this.chefe.derrotado) luzes.push({ x: this.chefe.x, y: this.chefe.y, raio: 100, cor: this.chefe.vulneravel ? 0x8030a0 : 0x6a2040, intensidade: 0.9 })
     for (const v of this.velas) {
       if (!visivel(v.x, v.y)) continue
       const tremula = 1 + Math.sin(this.tempo * 13 + v.x) * 0.05 + Math.sin(this.tempo * 7.3) * 0.04
@@ -591,7 +857,7 @@ export class CenaJogo {
       luzes.push({ x: j.x + 16, y: j.y + 18, raio: 78, cor: 0x4a64b8, intensidade: 0.75 })
       if (j.olhos > 0) luzes.push({ x: j.x + 16, y: j.y + 13, raio: 34, cor: 0xff1030, intensidade: 0.8 })
     }
-    const cores = { chave: 0xffd060, pilha: 0x5aff8c, coracao: 0xff6080 }
+    const cores = { chave: 0xffd060, pilha: 0x5aff8c, coracao: 0xff6080, uv: 0xb070ff }
     for (const i of this.itens) {
       if (i.coletado || !visivel(i.baseX, i.baseY)) continue
       luzes.push({ x: i.baseX, y: i.baseY, raio: 18 + Math.sin(this.tempo * 3) * 2, cor: cores[i.tipo], intensidade: 0.7 })
@@ -650,6 +916,13 @@ export class CenaJogo {
     this.iluminacao.desenhar(cx, cy, this.coletarLuzes())
     this.hud.atualizar(dt, this.iris, this.estado)
     this.hud.container.visible = this.modo !== 'dialogo' && this.modo !== 'codigo'
+    if (this.chefe && !this.chefe.derrotado) {
+      const g = this.barraChefeGfx
+      g.clear()
+      g.rect(140, 18, 200, 8).fill(0x100810).stroke({ color: 0x6a2040, width: 1 })
+      g.rect(141, 19, Math.max(0, 198 * this.chefe.vida / 100), 6).fill(this.chefe.vulneravel ? 0xc060ff : 0x802030)
+      this.barraChefe.visible = this.modo !== 'dialogo'
+    } else this.barraChefe.visible = false
     this.granulado.tilePosition.set(Math.floor(Math.random() * 128), Math.floor(Math.random() * 128))
     this.flash.alpha = Math.max(0, this.flash.alpha - dt * 1.5)
     this.alerta.alpha = this.perseguindo ? 0.03 + Math.max(0, Math.sin(this.tempo * 7.5)) * 0.05 : Math.max(0, this.alerta.alpha - dt)
@@ -671,6 +944,6 @@ export class CenaJogo {
   destruir() {
     this.som.batimento(0)
     this.raiz.destroy({ children: true })
-    this.iluminacao.textura.destroy(true)
+    this.iluminacao.destruir()
   }
 }

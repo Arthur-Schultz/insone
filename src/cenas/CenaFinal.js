@@ -51,8 +51,8 @@ export class CenaFinal {
     const linhas = [
       `Tempo total: ${formatarTempo(p.tempo)}${this.recorde ? '   (novo recorde!)' : ''}`,
       `Vezes que o escuro venceu: ${p.mortes}`,
-      `Bilhetes lidos: ${p.bilhetes} de 9`,
-      `Sombras dissolvidas: ${p.sombras}`
+      `Bilhetes lidos: ${p.bilhetes} de 15`,
+      `Criaturas dissolvidas: ${p.sombras}`
     ]
     const cab = texto('A NOITE DE IRIS', { fill: CORES.destaque, fontSize: 28 })
     cab.anchor.set(0.5)

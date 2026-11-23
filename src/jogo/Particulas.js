@@ -30,9 +30,9 @@ export class Particulas {
     }
   }
 
-  brilho(x, y) {
-    for (let i = 0; i < 14; i++) {
-      const a = (i / 14) * Math.PI * 2
+  brilho(x, y, quantidade = 14) {
+    for (let i = 0; i < quantidade; i++) {
+      const a = (i / quantidade) * Math.PI * 2
       this.criar(x, y, { vx: Math.cos(a) * 50, vy: Math.sin(a) * 50, vida: 0.5, cor: i % 2 ? 0x7effd4 : 0xffe6a0, tamanho: 2 })
     }
   }

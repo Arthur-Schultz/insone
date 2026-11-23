@@ -4,7 +4,7 @@ import { ALTURA, LARGURA } from '../config.js'
 TextureSource.defaultOptions.scaleMode = 'nearest'
 
 const BASE = import.meta.env.BASE_URL + 'assets/'
-const ARQUIVOS = ['iris', 'sombra', 'sombra_olhos', 'coisa', 'coisa_olhos', 'vulto', 'vulto_olhos', 'tiles', 'objetos', 'janela', 'janela_olhos', 'cama', 'retratos']
+const ARQUIVOS = ['iris', 'sombra', 'sombra_olhos', 'coisa', 'coisa_olhos', 'vulto', 'vulto_olhos', 'fantasma', 'fantasma_olhos', 'tiles', 'objetos', 'extras', 'altos', 'janela', 'janela_olhos', 'cama', 'retratos']
 
 export const T = {
   PAREDE_SALA: 0,
@@ -41,6 +41,30 @@ export const O = {
   PORTA_ABERTA: 2,
   SAIDA: 3,
   RELOGIO: 4
+}
+
+export const X = {
+  ESPELHO_BARRA: 0,
+  ESPELHO_CONTRA: 1,
+  PROJETOR: 2,
+  SENSOR: 3,
+  SENSOR_ATIVO: 4,
+  TECLA: 5,
+  TECLA_ACESA: 10,
+  CAIXINHA: 15,
+  CAIXINHA_ABERTA: 16,
+  LANTERNA_UV: 17,
+  PLATAFORMA_UV: 18,
+  ESCRITA_SETA: 19,
+  ESCRITA_OLHO: 20,
+  ESCRITA_X: 21
+}
+
+export const A = {
+  LAMPADA: 0,
+  LAMPADA_ACESA: 1,
+  ESTANTE: 2,
+  CORTINA: 3
 }
 
 export const RETRATO = {
@@ -125,7 +149,7 @@ export async function carregarRecursos() {
     Assets.add({ alias: nome, src: BASE + nome + '.png' })
   }
   const tex = await Assets.load(ARQUIVOS)
-  R.iris = fatiar(tex.iris, 16, 24)
+  R.iris = fatiar(tex.iris, 24, 32)
   R.sombra = fatiar(tex.sombra, 16, 16)
   R.sombraOlhos = fatiar(tex.sombra_olhos, 16, 16)
   R.coisa = fatiar(tex.coisa, 48, 48)
@@ -134,6 +158,10 @@ export async function carregarRecursos() {
   R.objetos = fatiar(tex.objetos, 16, 32)
   R.janela = fatiar(tex.janela, 32, 32)
   R.janelaOlhos = tex.janela_olhos
+  R.extras = fatiar(tex.extras, 16, 16)
+  R.altos = fatiar(tex.altos, 16, 32)
+  R.fantasma = fatiar(tex.fantasma, 16, 20)
+  R.fantasmaOlhos = fatiar(tex.fantasma_olhos, 16, 20)
   R.vulto = fatiar(tex.vulto, 20, 14)
   R.vultoOlhos = fatiar(tex.vulto_olhos, 20, 14)
   R.cama = tex.cama

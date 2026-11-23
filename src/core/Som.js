@@ -260,6 +260,20 @@ export class Som {
     this.tom({ freq: 622, freqFinal: 587, tipo: 'sine', duracao: 1.6, volume: 0.03, ataque: 0.3, reverb: 0.8 })
   }
 
+  nota(indice) {
+    const freq = [523.25, 587.33, 659.25, 783.99, 880][indice] || 440
+    this.tom({ freq, tipo: 'triangle', duracao: 1.1, volume: 0.09, reverb: 0.7 })
+    this.tom({ freq: freq * 2, tipo: 'sine', duracao: 0.5, volume: 0.03, reverb: 0.7 })
+  }
+
+  zumbidoUV() {
+    this.tom({ freq: 3200, freqFinal: 2800, tipo: 'sine', duracao: 0.15, volume: 0.02 })
+  }
+
+  feixe() {
+    this.tom({ freq: 220, freqFinal: 880, tipo: 'sawtooth', duracao: 0.6, volume: 0.05, reverb: 0.4 })
+  }
+
   sombraChiado() {
     this.ruido({ duracao: 0.3, volume: 0.05, freq: 2500, tipoFiltro: 'bandpass', q: 6 })
   }

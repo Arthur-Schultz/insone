@@ -4,15 +4,15 @@ import { R } from '../core/Recursos.js'
 import { mover } from './Fisica.js'
 
 const ANIM = {
-  parado: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-  correndo: [2, 3, 4, 5]
+  parado: [0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 2],
+  correndo: [3, 4, 5, 6, 7, 8]
 }
 
 export class Iris {
   constructor(cena, x, y) {
     this.cena = cena
     this.w = 10
-    this.h = 20
+    this.h = 26
     this.x = x + 3
     this.y = y + 16 - this.h
     this.vx = 0
@@ -29,6 +29,7 @@ export class Iris {
     this.sanidadeMaxima = 3
     this.bateria = 100
     this.lanternaLigada = true
+    this.modoUV = false
     this.piscar = 0
     this.tempoAnim = 0
     this.tempoPasso = 0
@@ -36,6 +37,7 @@ export class Iris {
     this.empurrando = false
     this.sprite = new Sprite(R.iris[0])
     this.sprite.anchor.set(0.5, 1)
+    this.sprite.texture = R.iris[0]
   }
 
   get centroX() {
@@ -47,11 +49,11 @@ export class Iris {
   }
 
   get lanternaX() {
-    return this.centroX + this.direcao * 5
+    return this.centroX + this.direcao * 7
   }
 
   get lanternaY() {
-    return this.y + this.h - 5
+    return this.y + this.h - 8
   }
 
   lanternaAtiva() {
@@ -66,6 +68,17 @@ export class Iris {
     }
     this.lanternaLigada = !this.lanternaLigada
     this.cena.som.lanterna(this.lanternaLigada)
+  }
+
+  alternarUV() {
+    if (!this.cena.estado.temUV) {
+      this.cena.aviso('Você ainda não tem a lanterna UV.')
+      return
+    }
+    this.modoUV = !this.modoUV
+    this.cena.som.lanterna(true)
+    this.cena.aviso(this.modoUV ? 'Luz ultravioleta' : 'Luz branca')
+    if (!this.lanternaLigada && this.bateria > 0) this.lanternaLigada = true
   }
 
   recarregar(quantidade) {
@@ -129,8 +142,9 @@ export class Iris {
     this.atravessando = this.tempoAtravessar > 0
 
     if (entrada.apertou('lanterna')) this.alternarLanterna()
+    if (entrada.apertou('uv')) this.alternarUV()
     if (this.lanternaLigada && this.bateria > 0) {
-      this.bateria = Math.max(0, this.bateria - LANTERNA.consumo * dt)
+      this.bateria = Math.max(0, this.bateria - LANTERNA.consumo * (this.modoUV ? 1.6 : 1) * dt)
       if (this.bateria < 20 && Math.random() < dt * 1.5) this.piscar = 0.05 + Math.random() * 0.12
       if (this.bateria < 20 && !this.avisouPilha) {
         this.avisouPilha = true
@@ -178,9 +192,9 @@ export class Iris {
   atualizarSprite(dt) {
     this.tempoAnim += dt
     let quadro
-    if (!this.noChao) quadro = this.vy < 0 ? 6 : 7
+    if (!this.noChao) quadro = this.vy < 0 ? 9 : 10
     else if (Math.abs(this.vx) > 10) {
-      const velocidade = this.empurrando ? 6 : 10
+      const velocidade = this.empurrando ? 8 : 13
       quadro = ANIM.correndo[Math.floor(this.tempoAnim * velocidade) % ANIM.correndo.length]
       this.tempoPasso -= dt
       if (this.tempoPasso <= 0) {
